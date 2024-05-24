@@ -42,20 +42,14 @@ class Circuit :
                 protein[1].update()
             for protein in self.Cytoplasm:
                 data[protein[1].name].append(protein[1].population)
-        return data
-
-    def plot(self, n):
-        data = self.simulate(n)
         df = pd.DataFrame(data)
         df.plot()
 
+        
+
 circuit = Circuit()
-circuit.add("Enzyme A"
-, EnzymeA(quantity=10))
-circuit.add("Protein Y"
-, ProteinY(quantity=10))
-circuit.add("Substrate A"
-, SubstrateA(quantity=100))
-circuit.add("Product B"
-, ProductB(quantity=0))
+circuit.add("Enzyme A", EnzymeA(quantity=10))
+circuit.add("Protein Y", ProteinY(quantity=10))
+circuit.add("Substrate A", SubstrateA(quantity=100))
+circuit.add("Product B", ProductB(quantity=0))
 circuit.simulate(steps=100)
