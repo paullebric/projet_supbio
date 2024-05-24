@@ -22,7 +22,7 @@ class Circuit :
     Cytoplasm : list = [object]
     Feedback : list = []
     def __init__(self):
-        self.Enzymes = []
+        self.Cytoplasm = []
         self.Feedback = []
     def add(self,x):
         self.Cytoplasm.append(x)
