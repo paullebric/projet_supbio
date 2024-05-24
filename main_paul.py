@@ -14,7 +14,7 @@ class ProteinY :
         if Cytoplasm["Enzyme A"].quantity < feedback_treshold :
             self.quantity +=1 #basal rate changeable
         elif self.quantity > 0 :
-            self.quantity /=2
+            self.quantity -=1
         if Cytoplasm["Substrate A"].quantity<activation_treshold:
             self.state =True
         else :
@@ -28,7 +28,7 @@ class EnzymeA :
             print('la')
             self.quantity+=0.1*Cytoplasm["Protein Y"].quantity #ici pour chaque 10 promoteur (prot y) une enz A est creer encore une fois on peut changer cette valeur
         else :
-            self.quantity-=0.05*Cytoplasm["Protein Y"].quantity
+            self.quantity-=0.1*Cytoplasm["Protein Y"].quantity
 @dataclass
 class SubstrateA :
     quantity : float = 0
@@ -41,7 +41,7 @@ class ProductB :
     quantity : float = 0
     name : str = "Product B"
     def update(self,Cytoplasm):
-        Rate = k* Cytoplasm["Enzyme A"].quantity* Cytoplasm["Substrate A"].quantity
+        Rate = k* Cytoplasm["Enzyme A"].quantity * Cytoplasm["Substrate A"].quantity
         print("rate",Rate)
         Cytoplasm["Substrate A"].quantity /= Rate #ici je considère que 1 substrat A donne 1 produit B on pourra changer plus tard
         self.quantity *= Rate
