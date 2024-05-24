@@ -1,15 +1,20 @@
 #alicia et alice les grosses nulles elles verront jamais ce message
 from dataclasses import dataclass
 import pandas as pd
-
+active = True
+inactive = False
 @dataclass
 class ProteinY :
     quantity : float = 0
     name : str = "Protein Y"
+    state : bool = True
 @dataclass
 class EnzymeA :
     quantity : float = 0
     name : str = "Enzyme A"
+    def update(self):
+        pass
+        
 @dataclass
 class SubstrateA :
     quantity : float = 0
@@ -27,20 +32,18 @@ class Circuit :
         self.Feedback = []
     def add(self,name,objet):
         self.Cytoplasm.append([name,objet])
-    def simulate(self, n):
-        #data = { x.name : [] for x in self.animals}
+    def simulate(self, steps):
+        #data = { x.name : [] for x in self.Cytoplasm}
         data = {}
         for x in self.Cytoplasm:
-            data[x.name] = []
-        for k in range(n):
-            for animal in self.animals:
-                animal.update()
-            for interation in self.interactions:
-                interation.update()
-            for animal in self.animals:
-                data[animal.name].append(animal.population)
+            data[x[1].name] = []
+        for k in range(steps):
+            for protein in self.Cytoplasm:
+                protein[1].update()
+            for protein in self.Cytoplasm:
+                data[protein[1].name].append(protein[1].population)
         return data
-    
+
     def plot(self, n):
         data = self.simulate(n)
         df = pd.DataFrame(data)
