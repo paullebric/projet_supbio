@@ -2,25 +2,32 @@
 from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
-active = True
-inactive = False
 k = 0.0001
-activation_treshold=50
+activation_treshold=40
+feedback_treshold = 10
 @dataclass
 class ProteinY :
     quantity : float = 0
     name : str = "Protein Y"
-    state : bool = True
+    state :bool = True
     def update(self,Cytoplasm):
         if Cytoplasm["Substrate A"].quantity > activation_treshold :
-            self.quantity *=1.1 #ici l'augmentation de la prot Y est de 10% on peut changer et choisir comme on veut
+            self.quantity +=1 #basal rate changeable
+        elif self.quantity > 0 :
+            self.quantity -=1
+        if Cytoplasm["Enzyme A"].quantity<feedback_treshold:
+            self.state =True
+        else :
+            self.state =False
 @dataclass
 class EnzymeA :
     quantity : float = 0
     name : str = "Enzyme A"
-    def update(self,data):
-        pass
-        
+    def update(self,Cytoplasm):
+        if Cytoplasm["Protein Y"].state :
+            self.quantity+=0.1*Cytoplasm["Protein Y"].quantity #ici pour chaque 10 promoteur (prot y) une enz A est creer encore une fois on peut changer cette valeur
+        else :
+            self.quantity-=0.1*Cytoplasm["Protein Y"].quantity
 @dataclass
 class SubstrateA :
     quantity : float = 0
@@ -52,9 +59,10 @@ class Circuit :
             data[x] = []
         for i in range(steps):
             for protein in self.Cytoplasm.values():
-                protein.update(self.Cytoplasm)
-            for protein in self.Cytoplasm.values():
                 data[protein.name].append(protein.quantity)
+            for protein in self.Cytoplasm.values():
+                protein.update(self.Cytoplasm)
+
         df = pd.DataFrame(data)
         df.plot()
         plt.show()
