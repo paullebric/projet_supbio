@@ -25,7 +25,6 @@ class Interaction:
     prey: object
     predator: object
     rate: float
-
     def update(self):
         delta = self.rate * self.prey.population * self.predator.population
         self.prey.population -= delta
