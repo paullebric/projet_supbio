@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 k = 0.07
-activation_treshold=40
+activation_treshold=20
 feedback_treshold = 20
 basal_rate=1.10 #a peut pres 1.115 pour enzyme A
 @dataclass
@@ -17,7 +17,9 @@ class ProteinY :
         if Cytoplasm["Enzyme A"].quantity < feedback_treshold :
             self.quantity *= self.prod_rate
         else :
-            self.quantity -= 2#basal rate changeables
+            self.quantity -= Cytoplasm["Enzyme A"].quantity/10#basal rate changeables
+        
+        #Substrate Quantity (Substrate A) : si [substrate] < acti_treshold alors prot Y est activée
         if Cytoplasm["Substrate A"].quantity<activation_treshold:
             self.state =True
         else :
@@ -29,18 +31,19 @@ class EnzymeA :
     name : str = "Enzyme A"
     prod_rate : float = 0.01
     def update(self,Cytoplasm):
+        '''
+        If Y is active: production of Enzyme A is activated.
+        If Y is inactive: production of Enzyme A is inhibited.
+        '''
         if Cytoplasm["Protein Y"].state ==True :
             self.quantity+=(Cytoplasm["Protein Y"].quantity-self.quantity)/10
-        else :
-            print("lala")
+            
 @dataclass
 class SubstrateA :
     quantity : float = 0
     name : str = "Substrate A"
     def update(self,data):
         self.quantity += 0.7
-
-
 
 @dataclass
 class ProductB :
@@ -55,9 +58,10 @@ class Transformation:
     Enzyme : object
     rate: float = k
     def update(self):
+#Enzyme A catalyzes the chemical reaction: Substrate A →Product B. The rate of this reaction depends on the concentration of available Enzyme A and Substrate A.
         delta = self.rate * self.Substrate.quantity * self.Enzyme.quantity
         self.Substrate.quantity -= delta
-        self.Product.quantity += delta/10
+        self.Product.quantity += delta/10 #pour 10 substrat formation de 1 produit (arbitraire)
 
 
 @dataclass
@@ -77,7 +81,6 @@ class Circuit :
         self.Transformations.append(i)
     def simulate(self, steps):
         self.add_transformation()
-        #data = { x.name : [] for x in self.Cytoplasm}
         data = {}
         for x in self.Cytoplasm.keys():
             data[x] = []
