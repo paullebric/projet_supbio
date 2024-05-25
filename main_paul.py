@@ -43,8 +43,9 @@ class ProductB :
     def update(self,Cytoplasm):
         Rate = k* Cytoplasm["Enzyme A"].quantity * Cytoplasm["Substrate A"].quantity
         print("rate",Rate)
+
         Cytoplasm["Substrate A"].quantity /= Rate #ici je considère que 1 substrat A donne 1 produit B on pourra changer plus tard
-        self.quantity *= Rate
+        self.quantity += 1*Rate
 
 @dataclass
 class Circuit :
