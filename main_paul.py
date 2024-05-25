@@ -47,10 +47,6 @@ class ProductB :
     quantity : float = 0
     name : str = "Product B"
     def update(self,Cytoplasm):
-<<<<<<< HEAD
-        # Rate = k* Cytoplasm["Enzyme A"].quantity * Cytoplasm["Substrate A"].quantity
-        # Cytoplasm["Substrate A"].quantity /= Rate #ici je considère que 1 substrat A donne 1 produit B on pourra changer plus tard
-        # self.quantity *= Rate
         pass
 @dataclass
 class Transformation:
@@ -63,13 +59,6 @@ class Transformation:
         self.Substrate.quantity -= delta
         self.Product.quantity += delta/10
 
-=======
-        Rate = k* Cytoplasm["Enzyme A"].quantity * Cytoplasm["Substrate A"].quantity
-        print("rate",Rate)
-
-        Cytoplasm["Substrate A"].quantity /= Rate #ici je considère que 1 substrat A donne 1 produit B on pourra changer plus tard
-        self.quantity += 1*Rate
->>>>>>> 76079ac7ef2763394e6083585e89c476e4021a30
 
 @dataclass
 class Circuit :
