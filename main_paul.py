@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import matplotlib.animation as ani
 k = 0.07
 activation_treshold=20
 feedback_treshold = 20
@@ -91,7 +91,7 @@ class Circuit :
                 transfo.update()
             for protein in self.Cytoplasm.values():
                 protein.update(self.Cytoplasm)
-        df = pd.DataFrame(data)
+            df = pd.DataFrame(data)
         df.plot()
         plt.show()
 
@@ -101,4 +101,4 @@ circuit.add("Enzyme A", EnzymeA(quantity=5))
 circuit.add("Protein Y", ProteinY(quantity=5))
 circuit.add("Substrate A", SubstrateA(quantity=50))
 circuit.add("Product B", ProductB(quantity=0))
-circuit.simulate(steps=10000)
+circuit.simulate(steps=100)

@@ -1,100 +1,120 @@
-#alicia et alice les grosses nulles elles verront jamais ce message
 from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.animation as ani
 
-k = 0.07 #rate
-environment_signal=25
-activation_treshold=23
+k = 0.07
+activation_treshold = 20
 feedback_treshold = 20
-basal_rate=1.10 #a peut pres 1.115 pour enzyme A
+basal_rate = 1.10  # a peut pres 1.115 pour enzyme A
+
 @dataclass
-class ProteinY :
-    quantity : float = 0
-    name : str = "Protein Y"
-    state :bool = True
-    prod_rate : float = basal_rate
-    def update(self,Cytoplasm):
-        if Cytoplasm["Substrate A"].quantity>environment_signal:
-                    self.quantity *= self.prod_rate
-        else :
-                    self.quantity -= Cytoplasm["Enzyme A"].quantity/10#basal rate changeables
-    
-    
+class ProteinY:
+    quantity: float = 0
+    name: str = "Protein Y"
+    state: bool = True
+    prod_rate: float = basal_rate
+    def update(self, Cytoplasm):
+        if Cytoplasm["Enzyme A"].quantity < feedback_treshold:
+            self.quantity *= self.prod_rate
+        else:
+            self.quantity -= Cytoplasm["Enzyme A"].quantity / 10  # basal rate changeables
+
+        # Substrate Quantity (Substrate A) : si [substrate] < acti_treshold alors prot Y est activée
+        if Cytoplasm["Substrate A"].quantity < activation_treshold:
+            self.state = True
+        else:
+            self.state = False
+
 @dataclass
-class EnzymeA :
-    quantity : float = 0
-    name : str = "Enzyme A"
-    prod_rate : float = 0.01
-    def update(self,Cytoplasm):
+class EnzymeA:
+    quantity: float = 0
+    name: str = "Enzyme A"
+    prod_rate: float = 0.01
+    def update(self, Cytoplasm):
         '''
         If Y is active: production of Enzyme A is activated.
         If Y is inactive: production of Enzyme A is inhibited.
         '''
-        if Cytoplasm["Protein Y"].state ==True :
-            self.quantity+=(Cytoplasm["Protein Y"].quantity-self.quantity)/10
+        if Cytoplasm["Protein Y"].state == True:
+            self.quantity += (Cytoplasm["Protein Y"].quantity - self.quantity) / 10
 
 @dataclass
-class SubstrateA :
-    quantity : float = 0
-    name : str = "Substrate A"
-    def update(self,data):
-        self.quantity += 5.6
+class SubstrateA:
+    quantity: float = 0
+    name: str = "Substrate A"
+    def update(self, data):
+        self.quantity += 0.7
 
 @dataclass
-class ProductB :
-    quantity : float = 0
-    name : str = "Product B"
-    def update(self,Cytoplasm):
+class ProductB:
+    quantity: float = 0
+    name: str = "Product B"
+    def update(self, Cytoplasm):
         pass
+
 @dataclass
 class Transformation:
-    Substrate : object
-    Product : object
-    Enzyme : object
+    Substrate: object
+    Product: object
+    Enzyme: object
     rate: float = k
     def update(self):
-#Enzyme A catalyzes the chemical reaction: Substrate A →Product B. The rate of this reaction depends on the concentration of available Enzyme A and Substrate A.
+        # Enzyme A catalyzes the chemical reaction: Substrate A →Product B. The rate of this reaction depends on the concentration of available Enzyme A and Substrate A.
         delta = self.rate * self.Substrate.quantity * self.Enzyme.quantity
         self.Substrate.quantity -= delta
-        self.Product.quantity += delta/10 #pour 10 substrat formation de 1 produit (arbitraire)
-
+        self.Product.quantity += delta / 10  # pour 10 substrat formation de 1 produit (arbitraire)
 
 @dataclass
-class Circuit :
-    Cytoplasm : dict
-    Transformations : list
+class Circuit:
+    Cytoplasm: dict
+    Transformations: list
+    Steps:float = 0
     def __init__(self):
         self.Cytoplasm = {}
-        self.Transformations =[]
-    def add(self,name,objet):
-        self.Cytoplasm[name]=objet
+        self.Transformations = []
+    def add(self, name, objet):
+        self.Cytoplasm[name] = objet
     def add_transformation(self):
-        Substrate=self.Cytoplasm["Substrate A"]
-        Product=self.Cytoplasm["Product B"]
+        Substrate = self.Cytoplasm["Substrate A"]
+        Product = self.Cytoplasm["Product B"]
         Enzyme = self.Cytoplasm["Enzyme A"]
-        i = Transformation(Substrate=Substrate, Product=Product,Enzyme=Enzyme)
+        i = Transformation(Substrate=Substrate, Product=Product, Enzyme=Enzyme)
         self.Transformations.append(i)
     def simulate(self, steps):
+        self.Steps = steps
         self.add_transformation()
-        data = {}
-        for x in self.Cytoplasm.keys():
-            data[x] = []
+        self.data = {name: [] for name in self.Cytoplasm.keys()}
         for i in range(steps):
             for protein in self.Cytoplasm.values():
-                data[protein.name].append(protein.quantity)
+                self.data[protein.name].append(protein.quantity)
             for transfo in self.Transformations:
                 transfo.update()
             for protein in self.Cytoplasm.values():
                 protein.update(self.Cytoplasm)
-        df = pd.DataFrame(data)
-        df.plot()
-        plt.show()
+        self.df = pd.DataFrame(self.data)
 
+    def animate(self):
+        fig, ax = plt.subplots()
+        lines = {name: ax.plot([], [], label=name)[0] for name in self.df.columns}
+
+        def init():
+            ax.set_xlim(0, len(self.df))
+            ax.set_ylim(self.df.min().min(), self.df.max().max())
+            return lines.values()
+
+        def update(frame):
+            for name, line in lines.items():
+                line.set_data(range(frame), self.df[name][:frame])
+            return lines.values()
+        animation = ani.FuncAnimation(fig, update, frames=len(self.df), init_func=init, blit=True, interval=10,repeat=False)
+        ax.legend()
+        plt.show()
 
 circuit = Circuit()
 circuit.add("Enzyme A", EnzymeA(quantity=5))
 circuit.add("Protein Y", ProteinY(quantity=5))
 circuit.add("Substrate A", SubstrateA(quantity=50))
 circuit.add("Product B", ProductB(quantity=0))
-circuit.simulate(steps=1000)
+circuit.simulate(steps=100)
+circuit.animate()
