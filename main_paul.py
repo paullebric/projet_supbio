@@ -37,7 +37,7 @@ class EnzymeA :
         '''
         if Cytoplasm["Protein Y"].state ==True :
             self.quantity+=(Cytoplasm["Protein Y"].quantity-self.quantity)/10
-            
+
 @dataclass
 class SubstrateA :
     quantity : float = 0
@@ -101,4 +101,4 @@ circuit.add("Enzyme A", EnzymeA(quantity=5))
 circuit.add("Protein Y", ProteinY(quantity=5))
 circuit.add("Substrate A", SubstrateA(quantity=50))
 circuit.add("Product B", ProductB(quantity=0))
-circuit.simulate(steps=100)
+circuit.simulate(steps=10000)
