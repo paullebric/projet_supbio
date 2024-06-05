@@ -4,9 +4,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as ani
 k = 0.07
-activation_treshold=20
-feedback_treshold = 20
-basal_rate=1.10 #a peut pres 1.115 pour enzyme A
+activation_treshold=5
+feedback_treshold = 10
+basal_rate=1.10 #a peut pres 1.115 pour enzyme A*
+rapport_Substrate_Product=100
+basal_rate_A=10
 @dataclass
 class ProteinY :
     quantity : float = 0
@@ -14,22 +16,20 @@ class ProteinY :
     state :bool = True
     prod_rate : float = basal_rate
     def update(self,Cytoplasm):
+        """
         if Cytoplasm["Enzyme A"].quantity < feedback_treshold :
             self.quantity *= self.prod_rate
         else :
             self.quantity -= Cytoplasm["Enzyme A"].quantity/10#basal rate changeables
-        
-        #Substrate Quantity (Substrate A) : si [substrate] < acti_treshold alors prot Y est activée
-        if Cytoplasm["Substrate A"].quantity<activation_treshold:
-            self.state =True
-        else :
-            self.state =False
-
+        """
+        if Cytoplasm["Substrate A"].quantity>activation_treshold:
+            self.quantity *= self.prod_rate
+        self.quantity -= Cytoplasm["Enzyme A"].quantity/100
+        """"""
 @dataclass
 class EnzymeA :
     quantity : float = 0
     name : str = "Enzyme A"
-    prod_rate : float = 0.01
     def update(self,Cytoplasm):
         '''
         If Y is active: production of Enzyme A is activated.
@@ -43,7 +43,7 @@ class SubstrateA :
     quantity : float = 0
     name : str = "Substrate A"
     def update(self,data):
-        self.quantity += 0.7
+        self.quantity += basal_rate_A
 
 @dataclass
 class ProductB :
@@ -61,7 +61,7 @@ class Transformation:
 #Enzyme A catalyzes the chemical reaction: Substrate A →Product B. The rate of this reaction depends on the concentration of available Enzyme A and Substrate A.
         delta = self.rate * self.Substrate.quantity * self.Enzyme.quantity
         self.Substrate.quantity -= delta
-        self.Product.quantity += delta/10 #pour 10 substrat formation de 1 produit (arbitraire)
+        self.Product.quantity += delta/rapport_Substrate_Product #pour 10 substrat formation de 1 produit (arbitraire)
 
 
 @dataclass
@@ -101,4 +101,4 @@ circuit.add("Enzyme A", EnzymeA(quantity=5))
 circuit.add("Protein Y", ProteinY(quantity=5))
 circuit.add("Substrate A", SubstrateA(quantity=50))
 circuit.add("Product B", ProductB(quantity=0))
-circuit.simulate(steps=100)
+circuit.simulate(steps=300)
