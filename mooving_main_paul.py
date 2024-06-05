@@ -1,8 +1,13 @@
-#alicia et alice les grosses nulles elles verront jamais ce message
 from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as ani
+
+k = 0.07
+activation_treshold = 20
+feedback_treshold = 20
+basal_rate = 1.10  # a peut pres 1.115 pour enzyme A
+
 k = 0.07
 activation_treshold=5
 feedback_treshold = 10
@@ -68,6 +73,7 @@ class Transformation:
 class Circuit :
     Cytoplasm : dict
     Transformations : list
+    df: list
     def __init__(self):
         self.Cytoplasm = {}
         self.Transformations =[]
@@ -91,10 +97,24 @@ class Circuit :
                 transfo.update()
             for protein in self.Cytoplasm.values():
                 protein.update(self.Cytoplasm)
-            df = pd.DataFrame(data)
-        df.plot()
-        plt.show()
+            self.df = pd.DataFrame(data)
+            
+    def animate(self):
+        fig, ax = plt.subplots()
+        lines = {name: ax.plot([], [], label=name)[0] for name in self.df.columns}
 
+        def init():
+            ax.set_xlim(0, len(self.df))
+            ax.set_ylim(self.df.min().min(), self.df.max().max())
+            return lines.values()
+
+        def update(frame):
+            for name, line in lines.items():
+                line.set_data(range(frame), self.df[name][:frame])
+            return lines.values()
+        animation = ani.FuncAnimation(fig, update, frames=len(self.df), init_func=init, blit=True, interval=10,repeat=False)
+        ax.legend()
+        plt.show()
 
 circuit = Circuit()
 circuit.add("Enzyme A", EnzymeA(quantity=5))
@@ -102,3 +122,4 @@ circuit.add("Protein Y", ProteinY(quantity=5))
 circuit.add("Substrate A", SubstrateA(quantity=50))
 circuit.add("Product B", ProductB(quantity=0))
 circuit.simulate(steps=300)
+circuit.animate()
