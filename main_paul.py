@@ -56,6 +56,9 @@ class Transformation:
     Substrate : object
     Product : object
     Enzyme : object
+    Substrate : SubstrateA
+    Product : ProductB
+    Enzyme : EnzymeA
     rate: float = k
     def update(self):
 #Enzyme A catalyzes the chemical reaction: Substrate A →Product B. The rate of this reaction depends on the concentration of available Enzyme A and Substrate A.
