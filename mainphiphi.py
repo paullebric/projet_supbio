@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import pandas as pd
 from typing import List
 import matplotlib.pyplot as plt
+
+
 k = 0.001
 activation_treshold=40
 feedback_treshold = 20
@@ -14,11 +16,12 @@ class ProteinY :
     state :bool = False
     death_rate:float = 0.05    
     def update(self):
-        if self.state == True:
-            self.quantity *=1.105
-        if self.state ==False:
-            self.quantity *=0.9
-        self.quantity -= self.quantity*self.death_rate
+        # if self.state == True:
+        #     self.quantity *=1.2
+        # if self.state ==False:
+        #     self.quantity *=0.99
+        # self.quantity -= self.quantity*self.death_rate
+        pass
 
         
 
@@ -28,10 +31,7 @@ class EnzymeA :
     name : str = "Enzyme A"
     state:bool = False
     def update(self):
-        if self.state == True:
-            self.quantity *= 1.07
-        if self.state == False:
-            self.quantity *=0.98
+        pass
     
         
 
@@ -58,29 +58,27 @@ class Interaction:
     rate: float
 
     def update(self):
-        rate1 = self.rate * self.eA.quantity * self.subA.quantity
+        delta = self.rate * self.eA.quantity * self.subA.quantity
+        self.pB.quantity += delta/10
+        self.subA.quantity -= delta
 
-        if self.eA.state == True:
-            self.subA.quantity /=rate1
-
-        rate2 = self.rate * self.eA.quantity * self.subA.quantity
-
-        self.pB.quantity += rate2
-
-        if self.subA.quantity > activation_treshold:
+        if self.subA.quantity > inhibition_threshold:
                 self.pY.state = True
         elif self.subA.quantity < inhibition_threshold:
                 self.pY.state = False
         
-        if self.eA.quantity > feedback_treshold:
-            self.pY.state = False
-        else:
-            self.pY.state = True
 
         if self.pY.state == True:
             self.eA.state = True
         else:
             self.eA.state = False
+
+        if self.pY.state ==True:
+            self.pY.quantity +=self.eA.quantity/10
+        else:
+            self.pY.quantity -=self.eA.quantity/10
+        self.eA.quantity += (self.pY.quantity-self.eA.quantity)/10
+        self.subA.quantity +=0.5
 
 
 @dataclass
@@ -112,13 +110,14 @@ class Circuit :
                 inter.update()
             for protein in self.Cytoplasm:
                 data[protein.name].append(protein.quantity)
-        df = pd.DataFrame(data)
+
+        df = pd.DataFrame(data)  
         df.plot()
         plt.show()
 
-eA = EnzymeA(quantity=10)
-pY = ProteinY(quantity=10)
-sA = SubstrateA(quantity=100)
+eA = EnzymeA(quantity=5)
+pY = ProteinY(quantity=5)
+sA = SubstrateA(quantity=50)
 pB =ProductB(quantity=0)
 
 circuit = Circuit()
