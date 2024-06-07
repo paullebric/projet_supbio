@@ -112,7 +112,10 @@ class Circuit :
             for name, line in lines.items():
                 line.set_data(range(frame), self.df[name][:frame])
             return lines.values()
-        animation = ani.FuncAnimation(fig, update, frames=len(self.df), init_func=init, blit=True, interval=10,repeat=False)
+        frames=len(self.df)
+        interval = 3
+        print(frames)
+        animation = ani.FuncAnimation(fig, update, frames=frames, init_func=init, blit=True, interval=interval,repeat=False)
         ax.legend()
         plt.show()
 
