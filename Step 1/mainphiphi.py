@@ -5,36 +5,10 @@ from typing import List
 import matplotlib.pyplot as plt
 import matplotlib.animation as ani
 
-
-k = 0.001
 activation_treshold=40
 feedback_treshold = 20
 inhibition_threshold = 1
-@dataclass
-class ProteinY :
-    quantity : float = 0
-    name : str = "Protein Y"
-    state :bool = False
-    death_rate:float = 0.05    
-    def update(self):
-        # if self.state == True:
-        #     self.quantity *=1.2
-        # if self.state ==False:
-        #     self.quantity *=0.99
-        # self.quantity -= self.quantity*self.death_rate
-        pass
-
-        
-
-@dataclass
-class EnzymeA :
-    quantity : float = 0
-    name : str = "Enzyme A"
-    state:bool = False
-    def update(self):
-        pass
-    
-        
+@dataclass       
 
 #Since everything is done in the "Interaction" Class, the "Component" Class doesnt need to have updates
 @dataclass 
@@ -139,6 +113,6 @@ circuit.add(eA)
 circuit.add(pY)
 circuit.add(sA)
 circuit.add(pB)
-circuit.add_interactions(eA,pY,sA,pB,0.01)
+circuit.add_interactions(eA,pY,sA,pB,0.07)
 circuit.simulate(steps=100)
 circuit.animate()
