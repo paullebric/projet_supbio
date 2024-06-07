@@ -3,16 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as ani
 
-k = 0.07
-activation_treshold = 20
-feedback_treshold = 20
-basal_rate = 1.10  # a peut pres 1.115 pour enzyme A
-
-k = 0.07
+k = 0.05
 activation_treshold=5
 feedback_treshold = 10
 basal_rate=1.10 #a peut pres 1.115 pour enzyme A*
-rapport_Substrate_Product=100
+rapport_Substrate_Product=200
 basal_rate_A=10
 @dataclass
 class ProteinY :
@@ -113,7 +108,7 @@ class Circuit :
                 line.set_data(range(frame), self.df[name][:frame])
             return lines.values()
         frames=len(self.df)
-        interval = 3
+        interval = 1
         print(frames)
         animation = ani.FuncAnimation(fig, update, frames=frames, init_func=init, blit=True, interval=interval,repeat=False)
         ax.legend()
