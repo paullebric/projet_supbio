@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
 dico_rate ={"temperature":1,
-            "eat":0.005,
+            "eat":0.0005,
             "big_mammals_threshold":10
 }
 @dataclass

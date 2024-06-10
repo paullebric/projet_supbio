@@ -38,7 +38,7 @@ class Interaction :
         self.mouton = ETRES["Mouton"]
     def update(self):
         #chaque chien fait peur a 5 loups
-        delta = (self.loup.pop - self.chien.pop*5)/3
+        delta = (self.loup.pop - self.chien.pop*5)*0.0005
         if delta <= 0 :
             self.chien.pop -= 1
             self.loup.pop -= 3
