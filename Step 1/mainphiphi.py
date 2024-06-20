@@ -42,7 +42,6 @@ class Interaction:
         else:
             self.pY.state = True
         
-
         if self.pY.state == True: #the state of eA is always the same as pY
             self.eA.state = True
         else:

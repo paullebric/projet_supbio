@@ -7,7 +7,6 @@ class Wolf:
     population: float
     death_rate: float
     name: str = "Wolf"
-
     def update(self):
         self.population -= self.population * self.death_rate
 

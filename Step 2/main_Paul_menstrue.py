@@ -1,72 +1,80 @@
 from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
-dico_rate ={"temperature":1,
-            "eat":0.0005,
-            "big_mammals_threshold":10
+dico_rate ={"Renard_Pluvier" : 0.0005,
+            "Fuite_Renard" : 0.005,
+            "Pluvier_Vison" : 0.0004,
+            "Renard_Vison" : 0.0008
 }
 @dataclass
-class Etre_vivant :
+class Choses :
     pop : float
     Birth_rate : float = 0
     Death_rate : float = 0
 @dataclass
-class Tree(Etre_vivant):
-    name : str = "Tree"
-    saturation_threshold : float =0
+class Renard(Choses):
+    name : str = "Renard"
     def update(self):
-        #Ici si il y a trop d'arbres il n'y en a plus qui naissent
-        # self.Birth_rate = 1+(self.saturation_threshold/self.pop)/(100+(dico_rate["temperature"]*2)**2)
-        self.pop *= self.Birth_rate/self.Death_rate
-
+        if self.pop<=0:
+            self.pop = 1
+@dataclass
+class Pluvier(Choses):
+    name : str = "Pluvier"
+    def update(self):
+        self.pop += self.Birth_rate * self.pop
 
 @dataclass
-class Liane(Etre_vivant):
-    name : str = "Liane"
+class Cage(Choses):
+    name : str = "Cage"
+    state : bool = False
     def update(self):
-        self.pop /= self.Death_rate
-
+        if self.state :
+            self.pop +=0.5
+        elif self.pop != 0 :
+            self.pop -= 0.6
 @dataclass
-class Big_mammals(Etre_vivant):
-    name : str = "Big_mammals"
+class Vison(Choses):
+    name : str = "Vison"
     def update(self):
-        self.pop += self.Birth_rate*self.pop-self.Death_rate*self.pop
-
-@dataclass
-class Small_mammals(Etre_vivant):
-    name : str = "Small_mammals"
-    def update(self):
-        self.pop += self.Birth_rate*self.pop-self.Death_rate*self.pop
-
+        if self.pop <=0:
+            self.pop = 1
+        # self.pop -= self.pop * self.Death_rate
 
 @dataclass
 class Interaction :
-    big_mammals : Big_mammals
-    small_mammals : Small_mammals
-    tree : Tree
-    liane : Liane
+    cage : Cage
+    vison : Vison
+    renard : Renard
+    pluvier : Pluvier
     def __init__(self,ETRES):
-        self.big_mammals = ETRES["Big_mammals"]
-        self.small_mammals = ETRES["Small_mammals"]
-        self.tree = ETRES["Tree"]
-        self.liane = ETRES["Liane"]
+        self.cage = ETRES["Cage"]
+        self.vison = ETRES["Vison"]
+        self.renard = ETRES["Renard"]
+        self.pluvier = ETRES["Pluvier"]
     def update(self):
-        #1)les arbres permettent au liane de grandir (les lianes grandissent tant qu'il y a moins de 2 lianes par arbres)
-        self.liane.pop += (self.tree.pop - self.liane.pop/3)/(8-dico_rate["temperature"])
-        #2)les lianes tuent les arbres (les lianes détruisent les arbres quand il y en a plus de 2 par arbres)
-        if self.tree.pop < self.liane.pop/2:
-            self.tree.pop -= (self.liane.pop - self.tree.pop/2)/(500+dico_rate["temperature"])
-        #3)les lianes permettent au petits animaux de survivrent
-        self.small_mammals.pop = (1+self.liane.pop/1000)*self.small_mammals.pop
-        #4)les gros animaux mangent les petits
-        delta = dico_rate["eat"] * self.big_mammals.pop * self.small_mammals.pop
-        self.big_mammals.pop += delta/10
-        self.small_mammals.pop -= delta
-        #5)les gros animaux rependent les graines des arbres
-        self.tree.Birth_rate *= 1 + (self.big_mammals.pop-dico_rate["big_mammals_threshold"])/100
+        #RENARDS CHASSENT LES PLUVIERS
+        delta1 = dico_rate["Renard_Pluvier"] * (self.pluvier.pop-self.cage.pop)* self.renard.pop
+        self.pluvier.pop -= delta1
+        self.renard.pop += delta1
+        #Apparition/disparition des cages
+        if self.pluvier.pop <20 :
+            self.cage.state = True
+        if self.pluvier.pop < self.cage.pop or self.pluvier.pop > 300:
+            self.cage.state = False
+        #Fuite des renards par les cages
+        
+        self.renard.pop -= self.cage.pop*dico_rate["Fuite_Renard"]*self.renard.pop
+        
+        delta2 = dico_rate["Pluvier_Vison"] * self.pluvier.pop * self.vison.pop
+        self.pluvier.pop -= delta2
+        self.vison.pop += delta2
+        delta3 = dico_rate["Renard_Vison"] * self.vison.pop * self.renard.pop
+        self.vison.pop -= delta3
+        self.renard.pop += delta3
+        
 @dataclass
 class Circuit :
-    ETREVIVANT: list[Etre_vivant]
+    ETREVIVANT: list[Choses]
     INTERACTIONS : Interaction
     def __init__(self):
         self.ETREVIVANT = []
@@ -93,8 +101,8 @@ class Circuit :
         plt.show()
 
 circuit = Circuit()
-circuit.add(Tree(Death_rate=1.03,Birth_rate=1.05,pop=100,saturation_threshold=400))
-circuit.add(Liane(Death_rate=1.1,pop=100))
-circuit.add(Small_mammals(Death_rate=1.05,Birth_rate=1.05,pop=10))
-circuit.add(Big_mammals(Death_rate=1.05,Birth_rate=1.05,pop=10))
-circuit.simulate(steps=10)
+circuit.add(Renard(Death_rate=0.03,Birth_rate=0.05,pop=30))
+circuit.add(Pluvier(pop=100,Birth_rate=0.04))
+circuit.add(Vison(Death_rate=0.05,pop=30))
+circuit.add(Cage(pop=0))
+circuit.simulate(steps=1000)
