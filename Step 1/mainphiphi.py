@@ -29,7 +29,7 @@ class Interaction:
 
     def update(self):
         delta = self.rate * self.eA.quantity * self.subA.quantity    #based on the given formula
-        self.pB.quantity += delta/10 #we consider that 10 sA == 1 pB
+        self.pB.quantity += delta/30 #we consider that 10 sA == 1 pB
         self.subA.quantity -= delta
 
         if self.subA.quantity > inhibition_threshold: #activation threshold not used to avoid a weird middle part
@@ -113,6 +113,6 @@ circuit.add(eA)
 circuit.add(pY)
 circuit.add(sA)
 circuit.add(pB)
-circuit.add_interactions(eA,pY,sA,pB,0.07)
-circuit.simulate(steps=100)
+circuit.add_interactions(eA,pY,sA,pB,0.05)
+circuit.simulate(steps=1000)
 circuit.animate()
