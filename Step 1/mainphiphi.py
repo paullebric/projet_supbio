@@ -5,9 +5,9 @@ from typing import List
 import matplotlib.pyplot as plt
 import matplotlib.animation as ani
 
-activation_treshold=40
-feedback_treshold = 20
-inhibition_threshold = 1
+
+feedback_treshold = 20 #negative feedback
+inhibition_threshold = 1 #substrate feedback
 @dataclass       
 
 #Since everything is done in the "Interaction" Class, the "Component" Class doesnt need to have updates
@@ -29,15 +29,15 @@ class Interaction:
 
     def update(self):
         delta = self.rate * self.eA.quantity * self.subA.quantity    #based on the given formula
-        self.pB.quantity += delta/30 #we consider that 10 sA == 1 pB
+        self.pB.quantity += delta/30 #we consider that 30 sA == 1 pB or else pB grows too fast and the graph is not watchable
         self.subA.quantity -= delta
 
-        if self.subA.quantity > inhibition_threshold: #activation threshold not used to avoid a weird middle part
+        if self.subA.quantity > inhibition_threshold: #substrate feedback implementation
                 self.pY.state = True
         elif self.subA.quantity < inhibition_threshold:
                 self.pY.state = False
 
-        if self.eA.quantity > feedback_treshold: 
+        if self.eA.quantity > feedback_treshold: #negative feedback implementation
             self.pY.state = False
         else:
             self.pY.state = True
@@ -48,9 +48,9 @@ class Interaction:
             self.eA.state = False
 
         if self.pY.state ==True:
-            self.pY.quantity +=self.eA.quantity/10
+            self.pY.quantity +=self.eA.quantity/10#since eA catalyses pY, we add based on the qty of eA
         else:
-            self.pY.quantity -=self.eA.quantity/10
+            self.pY.quantity -=self.eA.quantity/10#pY gets reduced because it stops being synthetised and qty diminish
         self.eA.quantity += (self.pY.quantity-self.eA.quantity)/10 #it works
         self.subA.quantity +=0.5 #basal rate of substrate A 
 
@@ -87,33 +87,12 @@ class Circuit :
         self.df.plot()
         plt.show()
 
-    def animate(self):
-        fig, ax = plt.subplots()
-        lines = {name: ax.plot([], [], label=name)[0] for name in self.df.columns}
-
-        def init():
-            ax.set_xlim(0, len(self.df))
-            ax.set_ylim(self.df.min().min(), self.df.max().max())
-            return lines.values()
-
-        def update(frame):
-            for name, line in lines.items():
-                line.set_data(range(frame), self.df[name][:frame])
-            return lines.values()
-        animation = ani.FuncAnimation(fig, update, frames=len(self.df), init_func=init, blit=True, interval=10,repeat=False)
-        ax.legend()
-        plt.show()
-
 eA = Components(name = "Enzyme A",quantity=5)
 pY = Components(name = "Protein Y",quantity=5)
 sA = Components(name = "Substrate A",quantity=50)
 pB = Components(name = "Product B",quantity=0)
 
 circuit = Circuit()
-circuit.add(eA)
-circuit.add(pY)
-circuit.add(sA)
-circuit.add(pB)
+circuit.add(eA),circuit.add(pY),circuit.add(sA),circuit.add(pB)
 circuit.add_interactions(eA,pY,sA,pB,0.05)
 circuit.simulate(steps=500)
-# circuit.animate()
