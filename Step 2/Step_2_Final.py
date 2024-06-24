@@ -13,6 +13,7 @@ class Choses :
     pop : float
     Birth_rate : float = 0
     Death_rate : float = 0
+    
 @dataclass
 class Renard(Choses):
     name : str = "Renard"
@@ -21,6 +22,7 @@ class Renard(Choses):
             self.pop = 1
         else:
             self.pop -= self.pop*self.Death_rate
+            
 @dataclass
 class Pluvier(Choses):
     name : str = "Pluvier"
