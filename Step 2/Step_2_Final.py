@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
+
+#
 dico_rate ={"Renard_Pluvier" : 0.00005,
             "Fuite_Renard" : 0.0004,
             "Pluvier_Vison" : 0.0004,

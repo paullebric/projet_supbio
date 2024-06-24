@@ -15,9 +15,9 @@ class ProteinY :
     state :bool = True
     prod_rate : float = basal_rate
     def update(self,Cytoplasm):
-        if Cytoplasm["Substrate A"].quantity>activation_treshold:
+        if Cytoplasm["Substrate A"].quantity>activation_treshold: # Activation treshold change the quantity of Protein Y 
             self.quantity *= self.prod_rate
-        self.quantity -= Cytoplasm["Enzyme A"].quantity/100
+        self.quantity -= Cytoplasm["Enzyme A"].quantity/100 # The quantity of protein Y is relative to the quantity of Enzyme A
         
 @dataclass
 class EnzymeA :
