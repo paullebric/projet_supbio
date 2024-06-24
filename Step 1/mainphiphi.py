@@ -84,6 +84,8 @@ class Circuit :
             for protein in self.Cytoplasm:
                 data[protein.name].append(protein.quantity)
             self.df = pd.DataFrame(data)
+        self.df.plot()
+        plt.show()
 
     def animate(self):
         fig, ax = plt.subplots()
@@ -113,5 +115,5 @@ circuit.add(pY)
 circuit.add(sA)
 circuit.add(pB)
 circuit.add_interactions(eA,pY,sA,pB,0.05)
-circuit.simulate(steps=1000)
-circuit.animate()
+circuit.simulate(steps=500)
+# circuit.animate()
