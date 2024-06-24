@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 import pandas as pd
 import matplotlib.pyplot as plt
-dico_rate ={"Renard_Pluvier" : 0.0005,
-            "Fuite_Renard" : 0.005,
+dico_rate ={"Renard_Pluvier" : 0.00005,
+            "Fuite_Renard" : 0.0004,
             "Pluvier_Vison" : 0.0004,
-            "Renard_Vison" : 0.0008
+            "Renard_Vison" : 0.00007
 }
 @dataclass
 class Choses :
@@ -17,6 +17,8 @@ class Renard(Choses):
     def update(self):
         if self.pop<=0:
             self.pop = 1
+        else:
+            self.pop -= self.pop*self.Death_rate
 @dataclass
 class Pluvier(Choses):
     name : str = "Pluvier"
@@ -27,11 +29,13 @@ class Pluvier(Choses):
 class Cage(Choses):
     name : str = "Cage"
     state : bool = False
+    active : bool = True
     def update(self):
-        if self.state :
-            self.pop +=0.5
-        elif self.pop != 0 :
-            self.pop -= 0.6
+        if self.active :
+            if self.state :
+                self.pop +=0.5
+            elif self.pop != 0 :
+                self.pop -= 0.6
 @dataclass
 class Vison(Choses):
     name : str = "Vison"
@@ -67,7 +71,7 @@ class Interaction :
         
         delta2 = dico_rate["Pluvier_Vison"] * self.pluvier.pop * self.vison.pop
         self.pluvier.pop -= delta2
-        self.vison.pop += delta2
+        self.vison.pop += delta2/2
         delta3 = dico_rate["Renard_Vison"] * self.vison.pop * self.renard.pop
         self.vison.pop -= delta3
         self.renard.pop += delta3
@@ -101,8 +105,8 @@ class Circuit :
         plt.show()
 
 circuit = Circuit()
-circuit.add(Renard(Death_rate=0.03,Birth_rate=0.05,pop=30))
+circuit.add(Renard(Death_rate=0.0003,Birth_rate=0.05,pop=15))
 circuit.add(Pluvier(pop=100,Birth_rate=0.04))
-circuit.add(Vison(Death_rate=0.05,pop=30))
-circuit.add(Cage(pop=0))
-circuit.simulate(steps=1000)
+circuit.add(Vison(Death_rate=0.05,pop=15))
+circuit.add(Cage(pop=0,active=True))
+circuit.simulate(steps=10000)
