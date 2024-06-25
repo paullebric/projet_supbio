@@ -8,6 +8,7 @@ dico_rate ={"Renard_Pluvier" : 0.00005,
             "Pluvier_Vison" : 0.0004,
             "Renard_Vison" : 0.00007
 }
+
 @dataclass
 class Choses :
     pop : float
@@ -40,6 +41,7 @@ class Cage(Choses):
                 self.pop +=0.5
             elif self.pop != 0 :
                 self.pop -= 0.6
+                
 @dataclass
 class Vison(Choses):
     name : str = "Vison"
